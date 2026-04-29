@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Ventas con IA Real</title>
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Cabecera */
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            background: #1abc9c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .status-indicator {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+        }
+
+        /* Área de Mensajes */
+        #chat-history {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Estilos de Burbujas */
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .message-row.user {
+            flex-direction: row-reverse;
+        }
+
+        .bubble {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 1rem;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .bot .bubble {
+            background-color: #f1f0f0;
+            color: #333;
+            border-top-left-radius: 2px;
+        }
+        
+        .user .bubble {
+            background-color: #0084ff;
+            color: white;
+            border-top-right-radius: 2px;
+        }
+
+        /* Área de Input */
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #0084ff;
+        }
+
+        button#send-btn {
+            background: #0084ff;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button#send-btn:hover {
+            background: #0066d6;
+        }
+
+        /* Animación de escribiendo */
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            background: #f1f0f0;
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: 10px;
+            margin-left: 30px; /* Alineado con el bot */
+        }
+        .dot {
+            height: 7px;
+            width: 7px;
+            background-color: #aaa;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <header>
+        <div style="display:flex; align-items:center;">
+            <div class="bot-avatar">AI</div>
+            <div>
+                <h2 style="margin:0; font-size: 1.2rem;">Consultor Estratégico (GPT)</h2>
+                <div class="status-indicator">
+                    <span class="status-dot"></span> Conectado a OpenAI
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="chat-history">
+        <!-- Mensaje de bienvenida inicial -->
+        <div class="message-row bot">
+            <div class="bubble">
+                Hola, soy tu consultor de ventas impulsado por inteligencia artificial. Puedo ayudarte a analizar precios, competidores, lanzamientos de producto y más.<br><br>
+                Ejemplo: <em>"¿Es buena idea vender una suscripción de software a $50 dólares?"</em>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de "Escribiendo..." -->
+    <div style="padding: 0 30px;">
+        <div class="typing-indicator" id="typing-indicator">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Escribe tu pregunta de negocio aquí..." autocomplete="off">
+        <button id="send-btn">Enviar</button>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // CONFIGURACIÓN DE LA API
+    // ==========================================
+    // 👇 PEGA AQUÍ TU NUEVA CLAVE DE OPENAI (ENTRE LAS COMILLAS)
+    const API_KEY = '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'; 
+    // ==========================================
+
+    const chatHistory = document.getElementById('chat-history');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    // Configuración inicial del "Cerebro" de la IA (System Prompt)
+    let messages = [
+        { role: "system", content: "Eres un experto consultor de ventas, marketing y estrategia de negocios con más de 20 años de experiencia. Hablas en español. Tus respuestas deben ser profesionales, estratégicas, concisas y directas. Usa negritas para resaltar puntos clave." }
+    ];
+
+    // --- EVENTOS ---
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleUserMessage();
+    });
+    sendBtn.addEventListener('click', handleUserMessage);
+
+    // --- LÓGICA PRINCIPAL ---
+    async function handleUserMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        if (API_KEY === '') {
+            addMessage("⚠️ Error: No has configurado tu API Key. Edita el archivo HTML y pega tu clave en la variable API_KEY.", 'bot');
+            return;
+        }
+
+        // 1. Mostrar mensaje del usuario en pantalla
+        addMessage(text, 'user');
+        userInput.value = '';
+
+        // 2. Guardar pregunta en el historial (memoria de la IA)
+        messages.push({ role: "user", content: text });
+
+        // 3. Mostrar animación de "pensando"
+        showTyping(true);
+        scrollToBottom();
+
+        try {
+            // 4. Llamar a OpenAI
+            const botResponse = await callOpenAI();
+            
+            // 5. Mostrar respuesta y actualizar memoria
+            showTyping(false);
+            addMessage(botResponse, 'bot');
+            messages.push({ role: "assistant", content: botResponse });
+            scrollToBottom();
+
+        } catch (error) {
+            showTyping(false);
+            console.error(error);
+            let errorMsg = "Hubo un error al conectar. ";
+            if(error.message.includes("401")) errorMsg += "La API Key es inválida o incorrecta.";
+            else if(error.message.includes("429")) errorMsg += "Has superado tu límite de crédito o saldo en OpenAI.";
+            else errorMsg += error.message;
+            
+            addMessage(errorMsg, 'bot');
+        }
+    }
+
+    // --- FUNCIÓN DE CONEXIÓN CON OPENAI ---
+    async function callOpenAI() {
+       const url = "https://api.groq.com/openai/v1/chat/completions";
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.1-8b-instant", // Usa 'gpt-4' o 'gpt-4o-mini' si tienes acceso
+                messages: messages,
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || `Error ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    }
+
+    // --- FUNCIONES DE INTERFAZ ---
+    function addMessage(htmlContent, sender) {
+        const row = document.createElement('div');
+        row.className = `message-row ${sender}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // Formateo básico: Convertir **negritas** de Markdown a <strong> y saltos de línea a <br>
+        let formatted = htmlContent
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Negritas
+            .replace(/\n/g, '<br>'); // Saltos de línea
+
+        bubble.innerHTML = formatted; 
+        row.appendChild(bubble);
+        chatHistory.appendChild(row);
+    }
+
+    function showTyping(show) {
+        typingIndicator.style.display = show ? 'block' : 'none';
+    }
+
+    function scrollToBottom() {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarketShare</title>
+  
+  <!-- Fuente Limpia -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #09090b; /* Casi negro */
+      --card: #18181b;
+      --text: #fafafa;
+      --muted: #71717a;
+      --accent: #e4e4e7; /* Blanco humo */
+      --border: #27272a;
+      --font: 'Inter', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* --- NAV SIMPLE --- */
+    nav {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .nav-item:hover { color: var(--text); }
+    .nav-item.active { color: var(--text); }
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -17px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--text);
+    }
+
+    /* --- LAYOUT --- */
+    .section { display: none; animation: fade 0.4s ease; }
+    .section.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem; /* Mucho espacio para minimalismo */
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; gap: 2rem; }
+      nav { gap: 1rem; overflow-x: auto; white-space: nowrap; }
+      body { padding: 1rem; }
+    }
+
+    /* --- CONTROLES (INPUTS) --- */
+    .input-group { margin-bottom: 2rem; }
+    
+    label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 1.1rem;
+      padding: 0.5rem 0;
+      font-family: var(--font);
+      transition: border-color 0.2s;
+    }
+    
+    input[type="number"]:focus, select:focus {
+      border-bottom-color: var(--text);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin-top: 0.5rem;
+      accent-color: var(--text);
+    }
+
+    .range-val {
+      float: right;
+      font-size: 0.8rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* --- RESULTADOS (TEXT CENTRIC) --- */
+    .results {
+      padding-top: 1rem;
+    }
+
+    .main-result {
+      font-size: 3.5rem;
+      font-weight: 300;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      letter-spacing: -2px;
+    }
+
+    .result-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .detail-item span:last-child { font-weight: 600; }
+    
+    .detail-item.positive span:last-child { color: var(--text); }
+    .detail-item.negative span:last-child { color: var(--muted); opacity: 0.7; }
+
+    .btn-group { display: flex; gap: 1rem; margin-top: 1rem; }
+    .btn-minimal {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-minimal:hover { border-color: var(--text); color: var(--text); }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-left: 10px;
+      text-transform: uppercase;
+    }
+    .copy-btn:hover { color: var(--text); text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <nav>
+      <button class="nav-item active" onclick="show('precios')">Precios</button>
+      <button class="nav-item" onclick="show('descuentos')">Descuentos</button>
+      <button class="nav-item" onclick="show('envios')">Envíos</button>
+      <button class="nav-item" onclick="show('roi')">ROI</button>
+    </nav>
+
+    <!-- PRECIOS -->
+    <div id="precios" class="section active">
+      <div class="grid">
+        <div class="controls">
+          <div class="input-group">
+            <label>Costo Producto ($)</label>
+            <input type="number" id="p-costo" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Envío al Cliente ($)</label>
+            <input type="number" id="p-envio" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Comisión <span class="range-val" id="p-comision-val">15%</span></label>
+            <input type="range" id="p-comision" min="0" max="30" value="15" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Margen <span class="range-val" id="p-margen-val">30%</span></label>
+            <input type="range" id="p-margen" min="0" max="90" value="30" oninput="calc()">
+          </div>
+          <div class="input-group" style="margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem;">
+            <label>Ventas Mensuales</label>
+            <input type="number" id="p-ventas" oninput="calc()">
+          </div>
+        </div>
+        
+        <div class="results">
+          <label>Precio Sugerido</label>
+          <div class="main-result" id="p-precio-final">$0.00 <button class="copy-btn" onclick="copy('p-precio-final')">Copiar</button></div>
+          <div class="result-label">Ingreso proyectado: <span id="p-r-mensual" style="color:var(--text)">$0</span></div>
+
+          <div class="detail-item">
+            <span>Costo Total</span>
+            <span id="p-r-costo">$0.00</span>
+          </div>
+          <div class="detail-item">
+            <span>Comisión</span>
+            <span id="p-r-comision">$0.00</span>
+          </div>
+          <div class="detail-item">
+            <span>Ganancia Neta</span>
+            <span id="p-r-ganancia">$0.00</span>
+          </div>
+          <div class="detail-item">
+            <span>Margen Real</span>
+            <span id="p-r-margen">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESCUENTOS -->
+    <div id="descuentos" class="section">
+      <div class="grid">
+        <div class="controls">
+          <div class="input-group">
+            <label>Precio Actual ($)</label>
+            <input type="number" id="d-precio" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Tu Costo ($)</label>
+            <input type="number" id="d-costo" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Descuento <span class="range-val" id="d-desc-val">20%</span></label>
+            <input type="range" id="d-desc" min="0" max="80" value="20" oninput="calc()">
+          </div>
+          <div class="btn-group">
+            <button class="btn-minimal" onclick="set('d-desc', 10)">10%</button>
+            <button class="btn-minimal" onclick="set('d-desc', 20)">20%</button>
+            <button class="btn-minimal" onclick="set('d-desc', 50)">50%</button>
+          </div>
+        </div>
+        <div class="results">
+          <label>Nuevo Precio</label>
+          <div class="main-result" id="d-precio-final">$0.00</div>
+          <div class="result-label">Ahorro para cliente: <span id="d-r-ahorro">$0</span></div>
+
+          <div class="detail-item">
+            <span>Ganancia Actual</span>
+            <span id="d-r-ganancia">$0.00</span>
+          </div>
+          <div class="detail-item">
+            <span>Margen Resultante</span>
+            <span id="d-r-margen">0%</span>
+          </div>
+          <div class="detail-item">
+            <span>Estado</span>
+            <span id="d-r-viable">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENVIOS -->
+    <div id="envios" class="section">
+      <div class="grid">
+        <div class="controls">
+          <div class="input-group">
+            <label>Peso (kg)</label>
+            <input type="number" id="e-peso" step="0.1" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Dimensiones (cm)</label>
+            <div style="display:flex; gap:10px;">
+              <input type="number" id="e-l" placeholder="L" oninput="calc()">
+              <input type="number" id="e-a" placeholder="A" oninput="calc()">
+              <input type="number" id="e-h" placeholder="H" oninput="calc()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Zona</label>
+            <select id="e-zona" onchange="calc()">
+              <option value="local">Local</option>
+              <option value="regional">Regional</option>
+              <option value="nacional">Nacional</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Precio Venta ($)</label>
+            <input type="number" id="e-precio-prod" oninput="calc()">
+          </div>
+        </div>
+        <div class="results">
+          <label>Costo Envío</label>
+          <div class="main-result" id="e-costo">—</div>
+          <div class="result-label">Precio Mínimo Recomendado: <span id="e-umbral">—</span></div>
+
+          <div class="detail-item">
+            <span>Peso Facturable</span>
+            <span id="e-facturable">0 kg</span>
+          </div>
+          <div class="detail-item">
+            <span>Impacto en Margen</span>
+            <span id="e-impacto">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROI -->
+    <div id="roi" class="section">
+      <div class="grid">
+        <div class="controls">
+          <div class="input-group">
+            <label>Inversión ($)</label>
+            <input type="number" id="r-inversion" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Ingresos ($)</label>
+            <input type="number" id="r-ingresos" oninput="calc()">
+          </div>
+          <div class="input-group">
+            <label>Costos Ops ($)</label>
+            <input type="number" id="r-costos" oninput="calc()">
+          </div>
+        </div>
+        <div class="results">
+          <label>Retorno (ROI)</label>
+          <div class="main-result" id="r-roi-final">0%</div>
+          <div class="result-label">Ganancia Neta: <span id="r-ganancia">$0</span></div>
+
+          <div class="detail-item">
+            <span>Por cada $1 invertido</span>
+            <span id="r-por-peso">$0.00</span>
+          </div>
+          <div class="detail-item">
+            <span>Veredicto</span>
+            <span id="r-viable">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- LOCALSTORAGE ---
+    document.querySelectorAll('input, select').forEach(el => {
+      const saved = localStorage.getItem(el.id);
+      if(saved) el.value = saved;
+      el.addEventListener('input', () => localStorage.setItem(el.id, el.value));
+    });
+
+    // --- NAV ---
+    function show(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      event.target.classList.add('active');
+    }
+    function copy(id) {
+      navigator.clipboard.writeText(document.getElementById(id).innerText.replace('Copiar', ''));
+    }
+    function set(id, val) { document.getElementById(id).value = val; calc(); }
+
+    // --- UTILS ---
+    const $ = id => document.getElementById(id);
+    const fmt = n => '$' + parseFloat(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const pct = n => parseFloat(n).toFixed(1) + '%';
+
+    function calc() {
+      // PRECIOS
+      const pc = parseFloat($('p-costo').value) || 0;
+      const pe = parseFloat($('p-envio').value) || 0;
+      const pcom = parseFloat($('p-comision').value) || 0;
+      const pmarg = parseFloat($('p-margen').value) || 0;
+      const pventas = parseFloat($('p-ventas').value) || 0;
+      
+      $('p-comision-val').innerText = pcom + '%';
+      $('p-margen-val').innerText = pmarg + '%';
+
+      const costoTotal = pc + pe;
+      const divisor = 1 - ((pcom + pmarg)/100);
+      const precio = divisor > 0 ? costoTotal / divisor : 0;
+      const com = precio * (pcom/100);
+      const ganancia = precio - costoTotal - com;
+      const margenR = (ganancia/precio)*100;
+
+      $('p-precio-final').innerHTML = fmt(precio) + ' <button class="copy-btn" onclick="copy(\'p-precio-final\')">Copiar</button>';
+      $('p-r-costo').innerText = fmt(costoTotal);
+      $('p-r-comision').innerText = fmt(com);
+      $('p-r-ganancia').innerText = fmt(ganancia);
+      $('p-r-margen').innerText = pct(margenR);
+      $('p-r-mensual').innerText = fmt(ganancia * pventas);
+
+      // DESCUENTOS
+      const dpr = parseFloat($('d-precio').value) || 0;
+      const dco = parseFloat($('d-costo').value) || 0;
+      const ddes = parseFloat($('d-desc').value) || 0;
+      $('d-desc-val').innerText = ddes + '%';
+
+      const dFinal = dpr * (1 - ddes/100);
+      const dGan = dFinal - dco;
+      const dMar = dFinal > 0 ? (dGan/dFinal)*100 : 0;
+
+      $('d-precio-final').innerText = fmt(dFinal);
+      $('d-r-ahorro').innerText = fmt(dpr - dFinal);
+      $('d-r-ganancia').innerText = fmt(dGan);
+      $('d-r-margen').innerText = pct(dMar);
+      $('d-r-viable').innerText = dGan > 0 ? (dMar > 15 ? 'Excelente' : 'Riesgoso') : 'Pérdida';
+      $('d-r-viable').className = dGan > 0 ? 'positive' : 'negative';
+
+      // ENVIOS
+      const ep = parseFloat($('e-peso').value) || 0;
+      const el = parseFloat($('e-l').value) || 0;
+      const ea = parseFloat($('e-a').value) || 0;
+      const eh = parseFloat($('e-h').value) || 0;
+      const ez = $('e-zona').value;
+      const eprice = parseFloat($('e-precio-prod').value) || 0;
+
+      const vol = (el*ea*eh)/5000;
+      const fact = Math.max(ep, vol);
+      let base = ez==='local'?5:ez==='regional'?10:15;
+      const costoE = base + (Math.max(0,fact-1)*5);
+
+      $('e-costo').innerText = fmt(costoE);
+      $('e-facturable').innerText = fact.toFixed(1) + ' kg';
+      $('e-umbral').innerText = fmt(eprice + costoE);
+      
+      const imp = (costoE/eprice)*100;
+      $('e-impacto').innerText = '-' + pct(imp);
+      $('e-impacto').className = imp > 20 ? 'negative' : 'positive';
+
+      // ROI
+      const ri = parseFloat($('r-inversion').value) || 0;
+      const ring = parseFloat($('r-ingresos').value) || 0;
+      const rc = parseFloat($('r-costos').value) || 0;
+
+      const g = ring - rc - ri;
+      const roi = ri > 0 ? (g/ri)*100 : 0;
+      
+      $('r-roi-final').innerText = pct(roi);
+      $('r-ganancia').innerText = fmt(g);
+      $('r-por-peso').innerText = '$' + (ri>0?((ring-rc)/ri).toFixed(2):0);
+      $('r-viable').innerText = roi > 20 ? 'Rentable' : (roi > 0 ? 'Bajo' : 'Pérdida');
+    }
+    calc();
+  </script>
+</body>
+</html>

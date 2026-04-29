@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Ventas | MarketShare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --primary-dark: #2c3e50;
+            --accent-color: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            padding: 1rem 0;
+        }
+        .brand {
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Table Area */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 0; /* Padding inside thead/tbody instead */
+            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
+            overflow: hidden; /* For rounded corners */
+        }
+
+        /* Minimalist Table */
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background-color: #fcfcfc;
+            border-bottom: 2px solid #eee;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #666;
+            padding: 15px;
+        }
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f5f5f5;
+            color: #444;
+        }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .price-tag {
+            font-weight: 600;
+            color: #27ae60; /* Verde dinero */
+        }
+
+        /* Badges */
+        .badge-stock-ok {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .badge-stock-low {
+            background-color: #ffebee;
+            color: #c62828;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Buttons & Inputs */
+        .btn-primary-custom {
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        .btn-primary-custom:hover {
+            background-color: #1a252f;
+            color: white;
+        }
+
+        .btn-icon {
+            color: #cbd5e0;
+            border: none;
+            background: transparent;
+            transition: 0.2s;
+        }
+        .btn-icon:hover {
+            color: #e53e3e;
+        }
+
+        .search-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 15px;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .search-box input {
+            border: none;
+            outline: none;
+            padding-left: 10px;
+            width: 100%;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #999;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a href="Dashboard.html" class="brand">
+                <i class="bi bi-arrow-left-circle me-2 fs-4"></i> 
+                <span>Mi Catálogo</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        
+        <!-- Stats Dashboard -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Total Productos</p>
+                        <h4 class="stat-value" id="total-items">0</h4>
+                    </div>
+                    <i class="bi bi-box fs-3 text-muted"></i>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Valor en Stock</p>
+                        <h4 class="stat-value" id="total-value">$0</h4>
+                    </div>
+                    <i class="bi bi-cash-stack fs-3 text-muted"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="search-box w-50">
+                <i class="bi bi-search text-muted"></i>
+                <input type="text" id="searchInput" placeholder="Buscar producto o categoría...">
+            </div>
+            <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="bi bi-plus-lg me-2"></i>Agregar Producto
+            </button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <table class="table table-hover w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Producto</th>
+                        <th style="width: 20%">Categoría</th>
+                        <th style="width: 15%">Precio</th>
+                        <th style="width: 15%">Stock</th>
+                        <th style="width: 10%" class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-body">
+                    <!-- Las filas se insertan aquí -->
+                </tbody>
+            </table>
+
+            <!-- Empty State (Se muestra cuando no hay productos) -->
+            <div id="empty-state" class="empty-state">
+                <i class="bi bi-cup-hot"></i>
+                <h5>Tu catálogo está vacío</h5>
+                <p class="small">Agrega tu primer producto para empezar a gestionar tus ventas.</p>
+                <button class="btn btn-sm btn-outline-dark mt-2" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    Crear primer producto
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Agregar Producto -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Nuevo Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Nombre del producto</label>
+                            <input type="text" class="form-control bg-light border-0 py-2" id="prodName" required placeholder="Ej. Auriculares Bluetooth">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Categoría</label>
+                            <select class="form-select bg-light border-0 py-2" id="prodCategory">
+                                <option value="General">General</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Hogar">Hogar</option>
+                                <option value="Ropa">Ropa</option>
+                                <option value="Servicios">Servicios</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted">Precio Venta ($)</label>
+                                <input type="number" class="form-control bg-light border-0 py-2" id="prodPrice" required placeholder="0.00">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small text-muted">Stock Disponible</label>
+                                <input type="number" class="form-control bg-light border-0 py-2" id="prodStock" required placeholder="0">
+                            </div>
+                        </div>
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn btn-primary-custom py-2">Guardar Producto</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- INICIALIZACIÓN VACÍA (Para el vendedor) ---
+        let inventory = []; 
+
+        const tbody = document.getElementById('inventory-body');
+        const emptyState = document.getElementById('empty-state');
+
+        function renderTable(data = inventory) {
+            tbody.innerHTML = '';
+            
+            // Manejo del estado vacío
+            if (data.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+
+            data.forEach(item => {
+                const stockLevel = parseInt(item.stock);
+                let badgeHTML = '<span class="badge-stock-ok">Disponible</span>';
+                
+                if (stockLevel === 0) {
+                    badgeHTML = '<span class="badge-stock-low">Agotado</span>';
+                } else if (stockLevel < 5) {
+                    badgeHTML = '<span class="badge-stock-low">Últimos (' + stockLevel + ')</span>';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="fw-bold text-dark">${item.name}</div>
+                    </td>
+                    <td><span class="text-muted small text-uppercase">${item.category}</span></td>
+                    <td><span class="price-tag">$${parseFloat(item.price).toLocaleString('es-ES')}</span></td>
+                    <td>${item.stock}</td>
+                    <td class="text-end">
+                        <button class="btn-icon" onclick="deleteProduct(${item.id})">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const totalItems = inventory.length;
+            const totalValue = inventory.reduce((acc, curr) => acc + (curr.price * curr.stock), 0);
+
+            document.getElementById('total-items').textContent = totalItems;
+            document.getElementById('total-value').textContent = '$' + totalValue.toLocaleString('es-ES');
+        }
+
+        // Agregar Producto
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('prodName').value,
+                category: document.getElementById('prodCategory').value,
+                price: document.getElementById('prodPrice').value,
+                stock: document.getElementById('prodStock').value
+            };
+
+            inventory.unshift(newProduct); // Agregar al inicio
+            renderTable();
+            
+            // Cerrar modal
+            const modalEl = document.getElementById('addProductModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+            this.reset();
+        });
+
+        // Eliminar Producto
+        window.deleteProduct = function(id) {
+            if(confirm('¿Eliminar este producto del catálogo?')) {
+                inventory = inventory.filter(item => item.id !== id);
+                renderTable();
+            }
+        };
+
+        // Buscador
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            const filtered = inventory.filter(item => 
+                item.name.toLowerCase().includes(term) || 
+                item.category.toLowerCase().includes(term)
+            );
+            renderTable(filtered);
+        });
+
+        // Render inicial (Vacío)
+        renderTable();
+    </script>
+</body>
+</html>

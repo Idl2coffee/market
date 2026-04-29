@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.2">
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Perfil</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: "Atkinson Hyperlegible", sans-serif; background-color: #ffffff;
+opacity: 1;
+background-image: radial-gradient(#3ea0e9 1.1500000000000001px, #ffffff 1.1500000000000001px);
+background-size: 23px 23px;}
+
+
+
+        /* ── CONTENEDOR PRINCIPAL ── */
+        .pagina {
+            width: 1000px;
+            margin: 0 auto;
+            padding: 20px 0 60px;
+            position: relative;
+        }
+
+        .banner {
+            background: #515151;
+            height: 150px;
+            border-radius: 10px;
+            position: relative;
+            z-index: -1;
+        }
+
+        .profile-picture {
+            height: 150px; width: 150px;
+            position: absolute; overflow: hidden;
+            background: url('https://qph.cf2.quoracdn.net/main-qimg-f32f85d21d59a5540948c3bfbce52e68') center/cover;
+            box-shadow: 0 8px 6px -6px black;
+            border-radius: 100%;
+            left: 50%; transform: translateX(-50%);
+            top: 12%;
+        }
+        .file-uploader {
+            opacity: 0; height: 100%; width: 100%;
+            cursor: pointer; position: absolute; top: 0; left: 0;
+        }
+        .upload-icon {
+            position: absolute; top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0; transition: opacity 0.3s ease;
+            color: #ccc; font-size: 28px; font-style: normal;
+        }
+        .profile-picture:hover .upload-icon { opacity: 1; }
+
+        /* TEXTOS */
+        #edicion { display: none; }
+
+        .nombre {
+            font-family: "Dela Gothic One", sans-serif;
+            font-size: 24px;
+            position: absolute;
+            left: 60%; top: 23%;
+        }
+        .tag {
+            font-family: "Atkinson Hyperlegible", sans-serif;
+            position: absolute;
+            left: 60%; top: 29%;
+            opacity: 50%;
+        }
+        .desc {
+            font-family: "Atkinson Hyperlegible", sans-serif;
+            position: absolute;
+            left: 2%; top: 25%;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            width: 380px;
+            max-height: 100px;
+            overflow: hidden;
+        }
+        .EDITAR {
+            position: absolute;
+            right: 0; top: 30px;
+        }
+        .divididor {
+            border: none;
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            margin: 12px 0;
+            position: relative;
+            bottom: -190px;
+        }
+
+        /* COPIAR LINK */
+        .copy-section {
+            display: flex;
+            align-items: center;
+            margin-top: 230px;
+            margin-bottom: 24px;
+            background: #fff;
+            border-radius: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .copy-label {
+            font-family: "Atkinson Hyperlegible", sans-serif;
+            font-size: 12px; color: #888;
+            text-transform: uppercase; letter-spacing: 1px;
+            padding: 0 16px; white-space: nowrap;
+        }
+        #url-display {
+            flex: 1; font-size: 13px; color: #555;
+            padding: 14px 0; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+            background: transparent; border: none; outline: none; cursor: default;
+        }
+        .copy-btn {
+            background-color: #3ea0e9; color: #fff;
+            border: none; padding: 14px 28px;
+            font-family: "Dela Gothic One", sans-serif;
+            font-size: 13px; letter-spacing: 1px;
+            cursor: pointer; margin: 0;
+            text-transform: uppercase;
+            transition: background .15s; white-space: nowrap;
+            border-radius: 0;
+        }
+        .copy-btn:hover { background-color: #42a8f6; }
+        .copy-btn.copiado { background-color: #4caf50; }
+
+        /* FORMULARIO */
+        .formulario {
+            display: flex; flex-direction: column;
+            align-items: center;
+            width: 460px; padding: 24px;
+            background-color: #f5f5f5;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            margin: 20px auto 0; border-radius: 10px;
+        }
+        .formulario h2 {
+            font-family: "Dela Gothic One", sans-serif;
+            margin-bottom: 20px; color: #404040;
+        }
+        .formulario label {
+            font-family: "Atkinson Hyperlegible", sans-serif;
+            color: #404040; align-self: flex-start;
+            margin-bottom: 4px; margin-left: 4px;
+        }
+        .formulario input[type="text"],
+        .formulario input[type="url"] {
+            background-color: #f1f1f1;
+            padding: 12px 16px; margin-bottom: 14px;
+            border: 0; border-radius: 10px;
+            color: #404040; outline: none; font-size: 15px;
+            width: 100%;
+        }
+        button {
+            background-color: #3ea0e9; color: #fff;
+            text-transform: uppercase; cursor: pointer;
+            border-radius: 25px; outline: none;
+            font-size: 15px; padding: 12px 24px;
+            margin: 8px; border: 0;
+        }
+        button:hover { background-color: #42a8f6; }
+
+        .link-row {
+            display: flex; align-items: center;
+            gap: 8px; width: 100%; margin-bottom: 8px;
+        }
+        .link-row input {
+            flex: 1; margin-bottom: 0 !important;
+            padding: 10px 12px !important; font-size: 13px !important;
+        }
+        .btn-remove {
+            flex-shrink: 0;
+            background-color: #e0e0e0; color: #555;
+            border: 0; border-radius: 50%;
+            width: 32px; height: 32px;
+            font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0; margin: 0;
+        }
+        .btn-remove:hover { background-color: #f08080; color: #fff; }
+        .links-container-wrap { width: 100%; margin-bottom: 8px; }
+        .botones { display: flex; justify-content: center; margin-top: 8px; }
+
+        /* CARDS */
+        .cards-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card.text-bg-dark {
+            height: 200px; text-decoration: none;
+            overflow: hidden;
+            transition: transform .15s, box-shadow .15s;
+            border: none; border-radius: 12px;
+        }
+        .card.text-bg-dark:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+        }
+        .card.text-bg-dark .card-img {
+            width: 100%; height: 100%;
+            object-fit: cover; filter: brightness(0.52);
+        }
+        .card.text-bg-dark .card-img-overlay {
+            display: flex; flex-direction: column;
+            justify-content: flex-end; padding: 16px;
+        }
+        .card-title {
+            font-family: "Dela Gothic One", sans-serif;
+            font-size: 16px; margin-bottom: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .card-text {
+            font-size: 12px; opacity: 0.8;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .card-text small { font-size: 11px; opacity: 0.65; }
+
+        .card-skeleton {
+            height: 200px; border-radius: 12px;
+            background: #e0e0e0; position: relative; overflow: hidden;
+        }
+        .card-skeleton::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+            animation: shimmer 1.2s infinite;
+        }
+        @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+    </style>
+</head>
+<body>
+<div class="pagina">
+
+    <div class="banner"></div>
+
+    <div class="profile-picture" id="profile-picture">
+        <i class="upload-icon">+</i>
+        <input class="file-uploader" type="file" onchange="upload()" accept="image/*"/>
+    </div>
+
+    <!-- VISTA -->
+    <div id="vista">
+        <p class="nombre" id="nombre-texto">Nombre de usuario</p>
+        <p class="tag"    id="nombre-tag">Comida</p>
+        <p class="desc"   id="desc-texto">Mi informacion general</p>
+        <div class="EDITAR">
+            <button type="button" onclick="mostrarEdicion()">Editar</button>
+        </div>
+        <hr class="divididor">
+    </div>
+
+    <!-- EDICIÓN -->
+    <div id="edicion">
+        <div class="formulario">
+            <h2>Edicion de perfil</h2>
+
+            <label for="nombre-input">NOMBRE</label>
+            <input id="nombre-input" type="text" value="Juan">
+
+            <label for="nombre-etiqueta">TIPO DE NEGOCIO</label>
+            <input id="nombre-etiqueta" type="text" value="Comida">
+
+            <label for="desc-input">DESCRIPCION</label>
+            <input id="desc-input" type="text" maxlength="100" value="Mi informacion general">
+
+            <label for="url-input">LINK DEL PERFIL</label>
+            <input id="url-input" type="url" placeholder="https://mipagina.com/miperfil">
+
+            <h2 style="margin-top:10px;">Links</h2>
+            <div class="links-container-wrap">
+                <div id="links-container">
+                    <div class="link-row">
+                        <input type="text" placeholder="Nombre" value="Instagram">
+                        <input type="url"  placeholder="https://..." value="https://www.instagram.com/">
+                        <button class="btn-remove" type="button" onclick="removeLink(this)">✕</button>
+                    </div>
+                    <div class="link-row">
+                        <input type="text" placeholder="Nombre" value="Tiktok">
+                        <input type="url"  placeholder="https://..." value="https://www.tiktok.com/">
+                        <button class="btn-remove" type="button" onclick="removeLink(this)">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" onclick="agregarLink()">+ Añadir link</button>
+            <div class="botones">
+                <button type="button" onclick="guardar()">Guardar</button>
+                <button type="button" onclick="cancelar()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COPIAR LINK -->
+    <div class="copy-section" id="copy-section">
+        <span class="copy-label">Tu perfil</span>
+        <input id="url-display" type="text" readonly value="Agrega tu link en Editar..." />
+        <button class="copy-btn" id="copy-btn" onclick="copiarLink()">Copiar</button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-section" id="cards-section"></div>
+
+</div><!-- /pagina -->
+
+<script>
+    /* ── Foto ── */
+    function upload() {
+        const input = document.querySelector('.file-uploader');
+        if (!input.files.length) return;
+        const image = input.files[0];
+        if (!image.type.includes('image')) return alert('Solo imagenes.');
+        if (image.size > 10_000_000) return alert('Maximo 10 MB.');
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        reader.onload = e => {
+            const data = e.target.result;
+            document.getElementById('profile-picture').style.backgroundImage = `url(${data})`;
+            try { localStorage.setItem('fotoPerfil', data); } catch(err) {}
+        };
+    }
+
+    function cargarFoto() {
+        const foto = localStorage.getItem('fotoPerfil');
+        if (foto) document.getElementById('profile-picture').style.backgroundImage = `url(${foto})`;
+    }
+
+    /* ── Vista / Edicion ── */
+    function mostrarEdicion() {
+        document.getElementById('nombre-input').value    = document.getElementById('nombre-texto').textContent;
+        document.getElementById('nombre-etiqueta').value = document.getElementById('nombre-tag').textContent;
+        document.getElementById('desc-input').value      = document.getElementById('desc-texto').textContent;
+        document.getElementById('url-input').value       = localStorage.getItem('perfilUrl') || '';
+        document.getElementById('profile-picture').style.display = 'none';
+        document.getElementById('vista').style.display          = 'none';
+        document.getElementById('copy-section').style.display   = 'none';
+        document.getElementById('cards-section').style.display  = 'none';
+        document.getElementById('edicion').style.display        = 'block';
+    }
+
+    function cancelar() {
+        document.getElementById('profile-picture').style.display = 'block';
+        document.getElementById('vista').style.display           = 'block';
+        document.getElementById('copy-section').style.display    = 'flex';
+        document.getElementById('cards-section').style.display   = 'grid';
+        document.getElementById('edicion').style.display         = 'none';
+    }
+
+    function guardar() {
+        document.getElementById('nombre-texto').textContent = document.getElementById('nombre-input').value;
+        document.getElementById('nombre-tag').textContent   = document.getElementById('nombre-etiqueta').value;
+        document.getElementById('desc-texto').textContent   = document.getElementById('desc-input').value;
+
+        const urlVal = document.getElementById('url-input').value.trim();
+        localStorage.setItem('perfilUrl', urlVal);
+        if (urlVal) document.getElementById('url-display').value = urlVal;
+
+        const filas = document.querySelectorAll('.link-row');
+        const linksGuardados = [];
+        filas.forEach(fila => {
+            const inputs = fila.querySelectorAll('input');
+            const nombre = inputs[0].value.trim();
+            const url    = inputs[1].value.trim();
+            if (nombre && url) linksGuardados.push({ nombre, url });
+        });
+        localStorage.setItem('links', JSON.stringify(linksGuardados));
+
+        cancelar();
+        generarCards(linksGuardados);
+    }
+
+    function agregarLink() {
+        const div = document.createElement('div');
+        div.className = 'link-row';
+        div.innerHTML = `
+            <input type="text" placeholder="Nombre">
+            <input type="url"  placeholder="https://...">
+            <button class="btn-remove" type="button" onclick="removeLink(this)">✕</button>
+        `;
+        document.getElementById('links-container').appendChild(div);
+    }
+
+    function removeLink(b) { b.parentElement.remove(); }
+
+    /* ── Copiar ── */
+    function copiarLink() {
+        const url = document.getElementById('url-display').value;
+        if (!url || url === 'Agrega tu link en Editar...') return;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.textContent = 'Copiado!';
+            btn.classList.add('copiado');
+            setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado'); }, 2000);
+        });
+    }
+
+    /* ── Cargar datos ── */
+    function cargarLinks() {
+        const guardados = localStorage.getItem('links');
+        if (!guardados) return;
+        const links = JSON.parse(guardados);
+        const linksContainer = document.getElementById('links-container');
+        linksContainer.innerHTML = '';
+        links.forEach(link => {
+            const div = document.createElement('div');
+            div.className = 'link-row';
+            div.innerHTML = `
+                <input type="text" value="${link.nombre}">
+                <input type="url"  value="${link.url}">
+                <button class="btn-remove" type="button" onclick="removeLink(this)">✕</button>
+            `;
+            linksContainer.appendChild(div);
+        });
+        generarCards(links);
+    }
+
+    function cargarUrl() {
+        const url = localStorage.getItem('perfilUrl') || '';
+        if (url) document.getElementById('url-display').value = url;
+    }
+
+    /* ── Cards ── */
+    async function generarCards(links) {
+        const section = document.getElementById('cards-section');
+        section.innerHTML = '';
+        for (const link of links) {
+            const skId = 'sk-' + Math.random().toString(36).slice(2);
+            const sk = document.createElement('div');
+            sk.className = 'card-skeleton';
+            sk.id = skId;
+            section.appendChild(sk);
+            fetchPreview(link, skId);
+        }
+    }
+
+    async function fetchPreview(link, skeletonId) {
+        const skeleton = document.getElementById(skeletonId);
+        const screenshotUrl = `https://s0.wordpress.com/mshots/v1/${encodeURIComponent(link.url)}?w=640&h=400`;
+
+        let titulo = link.nombre;
+        let desc   = '';
+        let hostname = link.url;
+        try { hostname = new URL(link.url).hostname; } catch(e) {}
+
+        try {
+            const res  = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(link.url)}`);
+            const data = await res.json();
+            const meta = data.data || {};
+            if (meta.title)       titulo = meta.title;
+            if (meta.description) desc   = meta.description;
+        } catch(e) {}
+
+        const card = document.createElement('a');
+        card.href = link.url; card.target = '_blank';
+        card.className = 'card text-bg-dark';
+        card.innerHTML = `
+            <img src="${screenshotUrl}" class="card-img" alt="${titulo}">
+            <div class="card-img-overlay">
+                <h5 class="card-title">${titulo}</h5>
+                ${desc ? `<p class="card-text">${desc}</p>` : ''}
+                <p class="card-text"><small>${hostname}</small></p>
+            </div>`;
+        skeleton.replaceWith(card);
+    }
+
+    window.onload = () => {
+        cargarFoto();
+        cargarUrl();
+        cargarLinks();
+    };
+</script>
+</body>
+</html>
